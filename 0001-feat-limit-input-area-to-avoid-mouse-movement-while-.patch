@@ -1,0 +1,30 @@
+From 93738557238997d0e70b147672e5ead001b087b2 Mon Sep 17 00:00:00 2001
+From: Olof Sandell <83674246+osandell@users.noreply.github.com>
+Date: Sat, 10 Jun 2023 15:32:26 +0200
+Subject: [PATCH] feat: limit input area to avoid mouse movement while typing
+
+---
+ drivers/input/mouse/bcm5974.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index ca150618d32f..5dadaf509604 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -566,6 +566,13 @@ static void report_finger_data(struct input_dev *input, int slot,
+ 			       const struct tp_finger *f)
+ {
+ 	input_mt_slot(input, slot);
++
++	// Disable touchpad functionality if near left 
++	// or right edge to avoid accidental presses while typing.
++	if (pos->x < -6000 || pos->x > 6500) {
++		return;
++	}
++
+ 	input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+ 
+ 	input_report_abs(input, ABS_MT_TOUCH_MAJOR,
+-- 
+2.41.0
+
